@@ -10,16 +10,22 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-//config file
+// Load config relative to this file so the server works from any directory.
+dotenv.config({ path: require("path").join(__dirname, "config", "config.env") });
 
-dotenv.config({ path: "backend/config/config.env" });
+if (!process.env.DB_URI || !process.env.JWT_SECRET_KEY) {
+  throw new Error(
+    "Missing DB_URI or JWT_SECRET_KEY. Copy config/config.env.example to config/config.env and fill in the values."
+  );
+}
 
 //connect to Database
 
 connectDatabase();
 
-const DB_server = app.listen(process.env.PORT, () => {
-  console.log(`server is working on http://localhost:${process.env.PORT}`);
+const port = Number(process.env.PORT) || 5001;
+const DB_server = app.listen(port, () => {
+  console.log(`server is working on http://localhost:${port}`);
 });
 
 //unhandle Promise rejection exception
